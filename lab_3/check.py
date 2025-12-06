@@ -3,7 +3,14 @@ import pandas as pd
 from typing import Dict, List, Pattern
 
 def is_invalid_data(pattern: Pattern, value: str) -> bool:
-    """Проверяет значение на невалидность"""
+    if pd.isna(value):
+        return True
+
+    value_str = str(value).strip()
+
+    # Пустые строки тоже невалидны
+    if value_str == '' or value_str == 'nan':
+        return True
     return not bool(pattern.fullmatch(str(value)))
 
 

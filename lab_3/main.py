@@ -2,6 +2,7 @@ import json_handler
 from check import find_invalid_rows
 from checksum import calculate_checksum
 
+
 def main():
     df = json_handler.read_csv('20.csv')
     pattern = json_handler.read_json('pattern.json')
