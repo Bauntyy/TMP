@@ -193,182 +193,210 @@ class Regular_Dodecahedron(VGroup):
             self.edges.add(create_line(d1, d2))
 
     def create_faces(self):
-
         self.faces = VGroup()
-        def Polygon_by_dots(*dots):
-            pos_list = [dots[i].get_center() for i in range(len(dots))]
-            return Polygon(*pos_list, color=self.edge_color, fill_color=self.face_color, fill_opacity=self.face_opacity, stroke_width=0)
 
-        # edges from up to down, anti-clockwise order
+        def create_polygon(*dots):
+            vertices = [dot.get_center() for dot in dots]
+            return Polygon(
+                *vertices,
+                color=self.edge_color,
+                fill_color=self.face_color,
+                fill_opacity=self.face_opacity,
+                stroke_width=0
+            )
+
         O, G, B, R = self.O_dots, self.G_dots, self.B_dots, self.R_dots
-        self.faces.add(Polygon_by_dots(B[0], B[3], O[3], G[0], O[0]))
-        self.faces.add(Polygon_by_dots(B[0], O[1], G[1], O[2], B[3]))
-        self.faces.add(Polygon_by_dots(B[0], O[0], R[0], R[1], O[1]))
-        self.faces.add(Polygon_by_dots(B[3], O[3], R[3], R[2], O[2]))
-        self.faces.add(Polygon_by_dots(O[3], R[3], O[7], G[3], G[0]))
-        self.faces.add(Polygon_by_dots(G[0], G[3], O[4], R[0], O[0]))
-        self.faces.add(Polygon_by_dots(O[1], R[1], O[5], G[2], G[1]))
-        self.faces.add(Polygon_by_dots(G[2], G[1], O[2], R[2], O[6]))
-        self.faces.add(Polygon_by_dots(R[2], R[3], O[7], B[2], O[6]))
-        self.faces.add(Polygon_by_dots(R[1], R[0], O[4], B[1], O[5]))
-        self.faces.add(Polygon_by_dots(G[2], O[6], B[2], B[1], O[5]))
-        self.faces.add(Polygon_by_dots(G[3], O[7], B[2], B[1], O[4]))
+
+        # Создание граней (адаптированный список)
+        faces_to_create = [
+            (B[0], B[3], O[3], G[0], O[0]),
+            (B[0], O[1], G[1], O[2], B[3]),
+            (B[0], O[0], R[0], R[1], O[1]),
+            (B[3], O[3], R[3], R[2], O[2]),
+            (O[3], R[3], O[7], G[3], G[0]),
+            (G[0], G[3], O[4], R[0], O[0]),
+            (O[1], R[1], O[5], G[2], G[1]),
+            (G[2], G[1], O[2], R[2], O[6]),
+            (R[2], R[3], O[7], B[2], O[6]),
+            (R[1], R[0], O[4], B[1], O[5]),
+            (G[2], O[6], B[2], B[1], O[5]),
+            (G[3], O[7], B[2], B[1], O[4])
+        ]
+
+        for face_dots in faces_to_create:
+            self.faces.add(create_polygon(*face_dots))
+
 
 class EulerFormula_02(Scene):
-    CONFIG = {
-        'camera_config': {'background_color': WHITE}
-    }
+    def __init__(self):
+        super().__init__()
+        self.camera.background_color = WHITE
 
     def construct(self):
+        formula = MathTex('V - E + F = 2', color=BLACK) \
+            .shift(DOWN * 1.6).scale(1.5)
 
-        # text = Text('V-E+F=2', font='庞门正道标题体', color=BLACK).shift(DOWN * 1.6).set_height(1.2)
-        # text.set_color_by_t2c({'V': RED, 'E': BLUE_D, 'F': YELLOW_D})
+        formula.set_color_by_tex('V', RED)
+        formula.set_color_by_tex('E', BLUE_D)
+        formula.set_color_by_tex('F', YELLOW_D)
 
-        formula = TexMobject('\\mathbf{V', '-', 'E', '+', 'F', '=', '2}', color=BLACK, background_stroke_color=BLACK,
-                             background_stroke_width=4.5).shift(DOWN * 1.6).set_height(1.)
-        formula.set_color_by_tex_to_color_map({'V': RED, 'E': BLUE_D, 'F': YELLOW_D})
+        graph = Regular_Dodecahedron(
+            edge_color=BLACK,
+            size=4,
+            vertex_color=BLACK
+        ).shift(UP * 1.6)
 
-
-        graph = Regular_Dodecahedron(edge_color=BLACK, size=4).shift(UP * 1.6)
-        # graph.rotate(PI/2, axis=UP)
-
-        # self.play(ShowCreation(graph), run_time=2)
         self.add(graph)
         self.wait()
-        self.play(Rotating(graph, radians=(270 + 30)*DEGREES, axis=UP), run_time=4)
+        self.play(
+            Rotate(graph, angle=(270 + 30) * DEGREES, axis=UP),
+            run_time=4
+        )
         self.wait()
-        # self.play(ShowCreation(text), run_time=2)
-        self.play(ShowCreation(formula), run_time=2)
-
+        self.play(Write(formula), run_time=2)
         self.wait(10)
 
-class Jagged_func_test(Scene):
-
-    def construct(self):
-        func_smooth = ParametricFunction(lambda t: np.sign(t) * UP + t * RIGHT, t_min=-2, t_max=2).shift(UP * 1.6)
-        func_jagged = ParametricFunction(lambda t: np.sign(t) * UP + t * RIGHT, t_min=-2, t_max=2).shift(DOWN * 1.6).make_jagged()
-
-        self.play(ShowCreation(func_smooth))
-        self.wait()
-        self.play(ShowCreation(func_jagged))
-        self.wait(2)
 
 class EulerFormula_03(Scene):
-
-    CONFIG = {
-        'camera_config': {'background_color': WHITE}
-    }
+    def __init__(self):
+        super().__init__()
+        self.camera.background_color = WHITE
 
     def construct(self):
-
         R = 2.8
-        O = UP * 1
-        point_on_circle = lambda theta: (RIGHT * np.cos(theta) + UP * np.sin(theta)) * R + O
+        O_point = UP * 1
+
+        def point_on_circle(theta):
+            return np.array([np.cos(theta), np.sin(theta), 0]) * R + O_point
+
         A = point_on_circle(200 * DEGREES)
         B = point_on_circle(-20 * DEGREES)
         C = point_on_circle(60 * DEGREES)
-        a = np.sqrt(sum((B-C) ** 2))
-        b = np.sqrt(sum((A-C) ** 2))
-        c = np.sqrt(sum((A-B) ** 2))
-        I = a/(a+b+c) * A + b/(a+b+c) * B + c/(a+b+c) * C
-        r = (R ** 2 - sum((O-I) ** 2))/2/R
 
+        a = np.linalg.norm(B - C)
+        b = np.linalg.norm(A - C)
+        c = np.linalg.norm(A - B)
+
+        I = (a * A + b * B + c * C) / (a + b + c)
+        r = (R ** 2 - np.linalg.norm(O_point - I) ** 2) / (2 * R)
+
+        # Создание объектов
+        tri_abc = Polygon(A, B, C, color=BLACK, stroke_width=6)
+        circle_o = Circle(radius=R, color=BLUE_D, stroke_width=6).move_to(O_point)
+        circle_i = Circle(radius=r, color=RED, stroke_width=6).move_to(I)
+        OI = DashedLine(O_point, I, color=PINK, stroke_width=4)
+
+        # Точки
         dot_a = Dot(A, color=GREEN_D).scale(1.2)
         dot_b = Dot(B, color=GREEN_D).scale(1.2)
         dot_c = Dot(C, color=GREEN_D).scale(1.2)
-        dot_o = Dot(O, color=BLUE_D).scale(1.2)
+        dot_o = Dot(O_point, color=BLUE_D).scale(1.2)
         dot_i = Dot(I, color=RED).scale(1.2)
 
-        tri_abc = Polygon(A, B, C, color=BLACK, stroke_width=6)
+        # Стрелки
+        arrow_R = Arrow(
+            O_point,
+            point_on_circle(220 * DEGREES),
+            buff=0,
+            color=BLUE_D,
+            stroke_width=4
+        )
 
-        circle_o = Circle(radius=R, color=BLUE_D, stroke_width=6).move_to(O)
-        circle_i = Circle(radius=r, color=RED, stroke_width=6).move_to(I)
+        arrow_r = Arrow(
+            I,
+            I + np.array([np.cos(45 * DEGREES), np.sin(45 * DEGREES), 0]) * r * 0.95,
+            buff=0.1,
+            color=RED,
+            stroke_width=4
+        )
 
-        arrow_R = Arrow(O, point_on_circle(220*DEGREES), buff=0, color=BLUE_D)
-        arrow_r = Arrow(I, I + (RIGHT * np.cos(40 * DEGREES) + UP * np.sin(45 * DEGREES)) * r, buff=1, color=RED).scale(0.95)
+        # Подписи
+        tex_o = MathTex('O', color=BLUE_D).scale(0.8).next_to(O_point, LEFT + UP, buff=0.1)
+        tex_i = MathTex('I', color=RED).scale(0.8).next_to(I, RIGHT + DOWN, buff=0.1)
+        tex_R = MathTex('R', color=BLUE_D).scale(0.8).next_to(arrow_R.get_end(), RIGHT + UP, buff=0.1)
+        tex_r = MathTex('r', color=RED).scale(0.8).next_to(arrow_r.get_end(), LEFT + DOWN, buff=0.1)
 
-        OI = DashedLine(O, I, color=PINK, stroke_width=6, dash_length=0.12, positive_space_ratio=0.75)
+        # Формула
+        formula = MathTex('OI^2 = R^2 - 2Rr', color=BLACK) \
+            .scale(1.6).shift(DOWN * 2.4)
 
-        tex_o = TexMobject('O', color=BLUE_D, background_stroke_color=BLUE_D, background_stroke_width=2).scale(0.8).next_to(O, LEFT * 0.16 + UP * 0.2)
-        tex_i = TexMobject('I', color=RED, background_stroke_color=RED, background_stroke_width=2).scale(0.8).next_to(I, RIGHT * 0.16 + DOWN * 0.2)
-        tex_R = TexMobject('R', color=BLUE_D, background_stroke_color=BLUE_D, background_stroke_width=2).scale(0.8).next_to(arrow_R.get_end(), RIGHT * 2.5 + UP * 0.4)
-        tex_r = TexMobject('r', color=RED, background_stroke_color=RED, background_stroke_width=2).scale(0.8).next_to(arrow_r.get_end(), LEFT * 2 + DOWN * 0.4)
+        formula.set_color_by_tex('OI', PINK)
+        formula.set_color_by_tex('R', BLUE_D)
+        formula.set_color_by_tex('r', RED)
 
-        self.add(tri_abc, circle_o, circle_i, OI, dot_a, dot_b, dot_c, dot_i, dot_o, arrow_R, arrow_r, tex_o, tex_i, tex_R, tex_r)
+        # Добавление и анимация
+        all_objects = [
+            tri_abc, circle_o, circle_i, OI,
+            dot_a, dot_b, dot_c, dot_i, dot_o,
+            arrow_R, arrow_r,
+            tex_o, tex_i, tex_R, tex_r
+        ]
+
+        for obj in all_objects:
+            self.add(obj)
 
         self.wait(1)
-        formula = TexMobject('\\mathbf{OI', '^2', '=', 'R', '^2', '-', '2', 'R', 'r}', color=BLACK,
-                             background_stroke_color=BLACK, background_stroke_width=3.6).scale(1.6).shift(DOWN * 2.4)
-        formula.set_color_by_tex_to_color_map({'OI': PINK, 'R': BLUE_D, 'r': RED})
-
         self.play(Write(formula), run_time=2)
-
         self.wait(10)
+
 
 class EulerFormula_04(Scene):
-
-    CONFIG = {
-        'camera_config': {'background_color': WHITE}
-    }
-
-    def construct(self):
-
-        formula = TexMobject('\\mathbf{e', '^{i', 'x', '}=', '\\cos{', 'x', '}+', 'i', '\\sin', '{x}}',
-                             color=WHITE, background_stroke_color=WHITE, background_stroke_width=4).set_height(1.)
-
-        formula.set_color_by_tex_to_color_map({'i': ORANGE, 'x': BLUE, 'e': GREEN, '\\sin': YELLOW_D, '\\cos': YELLOW_D}).shift(DOWN * 1.8)
-        formula[-2].set_color(YELLOW_D)
-
-        arrow_x = Arrow(LEFT * 2.35, RIGHT * 2.6, color=GRAY, buff=0, max_tip_length_to_length_ratio=0.05)
-        arrow_y = Arrow(DOWN * 2.35, UP * 2.6, color=GRAY, buff=0, max_tip_length_to_length_ratio=0.05)
-        circle = Circle(color=RED_D, stroke_width=8).scale(2)
-        group_1 = VGroup(arrow_x, arrow_y, circle).shift(UP * 1.2)
-
-        dot_o = Dot(ORIGIN, color=GRAY).set_height(0.2)
-        dot_p = Dot(np.sqrt(3) * RIGHT + UP, color=RED_D).set_height(0.25)
-        line_1 = Line(dot_o.get_center(), dot_p.get_center(), color=RED_D, stroke_width=8)
-        line_2 = Line(dot_o.get_center(), dot_p.get_center()*RIGHT + RIGHT * 0.035, color=YELLOW_D, stroke_width=10)
-        line_3 = Line(dot_p.get_center()*RIGHT + DOWN * 0.035, dot_p.get_center(), color=YELLOW_D, stroke_width=10)
-        group_2 = VGroup(line_1, line_2, line_3, dot_o, dot_p).shift(UP * 1.2)
-
-        tex_i_1 = TexMobject('\\mathbf{i}', color=ORANGE, background_stroke_color=ORANGE, background_stroke_width=1.6).scale(0.8)
-        tex_i_2 = TexMobject('\\mathbf{-i}', color=ORANGE, background_stroke_color=ORANGE, background_stroke_width=1.6).scale(0.8)
-        tex_i_1.shift(UP * 2.2 + RIGHT * 0.275)
-        tex_i_2.shift(DOWN * 2.2 + RIGHT * 0.275)
-
-        tex_1_1 = TexMobject('\\mathbf{1}', color=WHITE, background_stroke_color=WHITE, background_stroke_width=1.6).scale(0.8)
-        tex_1_2 = TexMobject('\\mathbf{-1}', color=WHITE, background_stroke_color=WHITE, background_stroke_width=1.6).scale(0.8)
-        tex_1_1.shift(RIGHT * 2.25 + DOWN * 0.275)
-        tex_1_2.shift(LEFT * 2.35 + DOWN * 0.275)
-
-        tex_cos = TexMobject('\\mathbf{\\cos{', 'x}}', color=YELLOW_D, background_stroke_color=WHITE, background_stroke_width=1).scale(0.8)
-        tex_sin = TexMobject('\\mathbf{\\sin{', 'x}}', color=YELLOW_D, background_stroke_color=WHITE, background_stroke_width=1).scale(0.8)
-        tex_cos[1].set_color(BLUE)
-        tex_sin[1].set_color(BLUE)
-        tex_cos.next_to(line_2, DOWN * 0.8)
-        tex_sin.next_to(line_3, RIGHT * 1.25)
-
-        tex_group = VGroup(tex_1_1, tex_1_2, tex_i_1, tex_i_2).shift(UP * 1.2)
-
-        self.add(group_1, group_2, tex_group, tex_cos, tex_sin)
-        self.wait()
-
-        self.play(Write(formula))
-
-        self.wait(10)
-
-class EulerFormula_05(Scene):
-
-    CONFIG = {
-        'camera_config': {'background_color': WHITE}
-    }
+    def __init__(self):
+        super().__init__()
+        self.camera.background_color = WHITE
 
     def construct(self):
+        formula = MathTex(
+            'e^{ix} = \\cos{x} + i\\sin{x}',
+            color=BLACK
+        ).scale(1.5).shift(DOWN * 1.8)
 
-        formula = TexMobject('\\mathbf{a', '^{\\varphi', '(', 'n', ')}', '\\equiv', '1', '(', 'mod', '\\,\\,n', ')}',
-                             color=BLACK, background_stroke_color=BLACK, background_stroke_width=4).set_height(1.5)
-        formula.set_color_by_tex_to_color_map({'a': RED_D, '\\varphi': PINK, 'n': BLUE, 'mod': GREEN})
+        formula.set_color_by_tex('i', ORANGE)
+        formula.set_color_by_tex('x', BLUE)
+        formula.set_color_by_tex('e', GREEN)
+        formula.set_color_by_tex('\\sin', YELLOW_D)
+        formula.set_color_by_tex('\\cos', YELLOW_D)
 
+        # Координатные оси
+        axes = Axes(
+            x_range=[-3, 3, 1],
+            y_range=[-3, 3, 1],
+            axis_config={"color": GRAY},
+            x_length=6,
+            y_length=6
+        ).shift(UP * 1.2)
+
+        # Единичная окружность
+        circle = Circle(color=RED_D, stroke_width=4).scale(2).shift(UP * 1.2)
+
+        # Точка и линии
+        angle = PI / 3  # 60 градусов
+        point = np.array([np.cos(angle), np.sin(angle), 0]) * 2 + UP * 1.2
+
+        dot_o = Dot(UP * 1.2, color=GRAY)
+        dot_p = Dot(point, color=RED_D)
+
+        radius_line = Line(UP * 1.2, point, color=RED_D, stroke_width=4)
+        cos_line = Line(UP * 1.2, point[0] * RIGHT + UP * 1.2, color=YELLOW_D, stroke_width=3)
+        sin_line = Line(point[0] * RIGHT + UP * 1.2, point, color=YELLOW_D, stroke_width=3)
+
+        # Подписи
+        tex_i = MathTex('i', color=ORANGE).scale(0.8).next_to(3 * UP + UP * 1.2, RIGHT, buff=0.1)
+        tex_neg_i = MathTex('-i', color=ORANGE).scale(0.8).next_to(3 * DOWN + UP * 1.2, RIGHT, buff=0.1)
+        tex_1 = MathTex('1', color=BLACK).scale(0.8).next_to(3 * RIGHT + UP * 1.2, DOWN, buff=0.1)
+        tex_neg_1 = MathTex('-1', color=BLACK).scale(0.8).next_to(3 * LEFT + UP * 1.2, DOWN, buff=0.1)
+
+        tex_cos = MathTex('\\cos x', color=YELLOW_D).scale(0.8) \
+            .next_to(cos_line, DOWN, buff=0.1)
+        tex_sin = MathTex('\\sin x', color=YELLOW_D).scale(0.8) \
+            .next_to(sin_line, RIGHT, buff=0.1)
+
+        # Добавление объектов
+        self.add(axes, circle)
+        self.add(radius_line, cos_line, sin_line)
+        self.add(dot_o, dot_p)
+        self.add(tex_i, tex_neg_i, tex_1, tex_neg_1, tex_cos, tex_sin)
+
+        self.wait(1)
         self.play(Write(formula))
-
         self.wait(10)
