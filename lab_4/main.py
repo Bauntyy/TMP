@@ -1,41 +1,54 @@
-from manimlib.imports import *
+from manim import *
+import numpy as np
 
 class EulerFormula_01(Scene):
 
-    CONFIG = {
-        'camera_config': {'background_color': WHITE}
-    }
+    def __init__(self):
+        super().__init__()
+        self.camera.background_color = WHITE
 
     def construct(self):
+        formula_01 = MathTex(
+            '\\mathbf{{a^{k} \\over{(a-b)(a-c)}} + {b^{k} \\over{(b-c)(b-a)}}',
+            color=BLACK
+        )
+        formula_01_2 = MathTex(
+            '\\mathbf{+ {c^{k} \\over{(c-a)(c-b)}}}}',
+            color=BLACK
+        )
 
-        formula_01 = TexMobject('\\mathbf{{{a', '^k}', '\\over{(', 'a', '-', 'b', ')', '(', 'a', '-', 'c', ')}} +',
-                                '{{b', '^k}', '\\over{(', 'b', '-', 'c', ')', '(', 'b', '-', 'a', ')}}',
-                                # '{{c', '^k}', '\\over{(', 'c', '-', 'a', ')', '(', 'c', '-', 'b', ')}}}',
-                                color=BLACK, background_stroke_color=BLACK, background_stroke_width=3.6)
-        formula_01_2 = TexMobject('\mathbf{+', '{{c', '^k}', '\\over{(', 'c', '-', 'a', ')', '(', 'c', '-', 'b', ')}}}',
-                                color=BLACK, background_stroke_color=BLACK, background_stroke_width=3.6)
-        formula_01.set_color_by_tex_to_color_map({'k': BLUE_D, 'a': RED_D, 'b': YELLOW_D, 'c': GREEN_D})
+        # Установка цветов
+        formula_01.set_color_by_tex('k', BLUE_D)
+        formula_01.set_color_by_tex('a', RED_D)
+        formula_01.set_color_by_tex('b', YELLOW_D)
+        formula_01.set_color_by_tex('c', GREEN_D)
+
         formula_01.scale(1.6).shift(UP * 2.5)
 
-        formula_01_2.set_color_by_tex_to_color_map({'k': BLUE_D, 'a': RED_D, 'b': YELLOW_D, 'c': GREEN_D})
+        formula_01_2.set_color_by_tex('k', BLUE_D)
+        formula_01_2.set_color_by_tex('a', RED_D)
+        formula_01_2.set_color_by_tex('b', YELLOW_D)
+        formula_01_2.set_color_by_tex('c', GREEN_D)
         formula_01_2[0].set_color(BLACK)
-        formula_01_2.scale(1.6).next_to(formula_01, DOWN * 3.).align_to(formula_01, LEFT)
+        formula_01_2.scale(1.6).next_to(formula_01, DOWN * 3).align_to(formula_01, LEFT)
 
-        eq_symbol = TexMobject('=', color=BLACK, background_stroke_color=BLACK, background_stroke_width=3.2)\
-            .scale(1.4).next_to(formula_01_2, RIGHT * 1.2)
+        eq_symbol = MathTex('=', color=BLACK).scale(1.4).next_to(formula_01_2, RIGHT * 1.2)
 
-        formula_02_1 = TexMobject('0\\, \\, (', 'k', '=0\\text{或}1)', color=BLACK, background_stroke_color=BLACK,
-                                  background_stroke_width=3.2).scale(1.2).next_to(eq_symbol, RIGHT * 2.75).shift(UP * 0.9)
-        formula_02_2 = TexMobject('1\\, \\, (', 'k', '=2)', color=BLACK, background_stroke_color=BLACK,
-                                  background_stroke_width=3.2).scale(1.2).next_to(eq_symbol, RIGHT * 2.75) # .shift(UP * 0)
-        formula_02_3 = TexMobject('a', '+', 'b', '+', 'c\\, \\, (', 'k', '=3)', color=BLACK, background_stroke_color=BLACK,
-                                  background_stroke_width=3.2).scale(1.2).next_to(eq_symbol, RIGHT * 2.75).shift(DOWN * 0.9)
-        formula_02_1.set_color_by_tex_to_color_map({'k': BLUE_D})
-        formula_02_2.set_color_by_tex_to_color_map({'k': BLUE_D})
-        formula_02_3.set_color_by_tex_to_color_map({'k': BLUE_D, 'a': RED_D, 'b': YELLOW_D, 'c': GREEN_D})
+        formula_02_1 = MathTex('0\\, \\, (k=0\\text{ или }1)', color=BLACK) \
+            .scale(1.2).next_to(eq_symbol, RIGHT * 2.75).shift(UP * 0.9)
+        formula_02_2 = MathTex('1\\, \\, (k=2)', color=BLACK) \
+            .scale(1.2).next_to(eq_symbol, RIGHT * 2.75)
+        formula_02_3 = MathTex('a+b+c\\, \\, (k=3)', color=BLACK) \
+            .scale(1.2).next_to(eq_symbol, RIGHT * 2.75).shift(DOWN * 0.9)
+
+        formula_02_1.set_color_by_tex('k', BLUE_D)
+        formula_02_2.set_color_by_tex('k', BLUE_D)
+        formula_02_3.set_color_by_tex('k', BLUE_D)
+        formula_02_3.set_color_by_tex('a', RED_D)
+        formula_02_3.set_color_by_tex('b', YELLOW_D)
+        formula_02_3.set_color_by_tex('c', GREEN_D)
+
         formula_02 = VGroup(formula_02_1, formula_02_2, formula_02_3)
-
-
         brace = Brace(formula_02, LEFT, color=BLACK)
 
         self.play(Write(formula_01))
@@ -44,7 +57,7 @@ class EulerFormula_01(Scene):
         self.wait(0.8)
 
         self.play(Write(eq_symbol), run_time=0.8)
-        self.play(ShowCreation(brace), run_time=0.8)
+        self.play(Create(brace), run_time=0.8)
         self.play(Write(formula_02), run_time=2)
 
         self.wait(10)
