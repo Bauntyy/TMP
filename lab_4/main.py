@@ -65,9 +65,10 @@ class EulerFormula_01(Scene):
 class Dot3d(VGroup):
 
     def __init__(self, loc, size=0.2, color=WHITE, **kwargs):
-        VGroup.__init__(self, **kwargs)
-        dot_01 = Dot(loc, color=color).set_height(size)
+        super().__init__(**kwargs)
+        dot_01 = Dot(loc, color=color).scale(size)
         self.add(dot_01)
+
         num = 4
         for i in range(1, num):
             dot_i = dot_01.copy().rotate(PI * i/num, axis=UP)
