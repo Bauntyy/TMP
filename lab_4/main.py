@@ -167,61 +167,30 @@ class Regular_Dodecahedron(VGroup):
         self.vertices = VGroup(self.O_dots, self.G_dots, self.B_dots, self.R_dots)
 
     def create_edges(self):
-        def Line_by2dots(d1, d2, stroke_width=self.stroke_width, color=self.edge_color, **kwargs):
-            return Line(d1.get_center(), d2.get_center(), color=color, stroke_width=stroke_width, **kwargs)
+        def create_line(d1, d2):
+            return Line(
+                d1.get_center(),
+                d2.get_center(),
+                color=self.edge_color,
+                stroke_width=self.edge_stroke
+            )
 
         self.edges = VGroup()
-
-        # edges from up to down, anti-clockwise order
         O, G, B, R = self.O_dots, self.G_dots, self.B_dots, self.R_dots
-        self.edges.add(Line_by2dots(B[0], B[3]))
 
-        self.edges.add(Line_by2dots(B[0], O[0]))
-        self.edges.add(Line_by2dots(B[0], O[1]))
-        self.edges.add(Line_by2dots(B[3], O[2]))
-        self.edges.add(Line_by2dots(B[3], O[3]))
+        # Создание рёбер (адаптированный список из исходного кода)
+        edges_to_create = [
+            (B[0], B[3]), (B[0], O[0]), (B[0], O[1]), (B[3], O[2]), (B[3], O[3]),
+            (O[0], G[0]), (O[1], G[1]), (O[2], G[1]), (O[3], G[0]),
+            (O[0], R[0]), (O[1], R[1]), (O[2], R[2]), (O[3], R[3]),
+            (G[0], G[3]), (G[1], G[2]), (R[0], R[1]), (R[2], R[3]),
+            (R[0], O[4]), (R[1], O[5]), (R[2], O[6]), (R[3], O[7]),
+            (G[3], O[4]), (G[2], O[5]), (G[2], O[6]), (G[3], O[7]),
+            (O[4], B[1]), (O[5], B[1]), (O[6], B[2]), (O[7], B[2]), (B[2], B[1])
+        ]
 
-        self.edges.add(Line_by2dots(O[0], G[0]))
-        self.edges.add(Line_by2dots(O[1], G[1]))
-        self.edges.add(Line_by2dots(O[2], G[1]))
-        self.edges.add(Line_by2dots(O[3], G[0]))
-
-        self.edges.add(Line_by2dots(O[0], R[0]))
-        self.edges.add(Line_by2dots(O[1], R[1]))
-        self.edges.add(Line_by2dots(O[2], R[2]))
-        self.edges.add(Line_by2dots(O[3], R[3]))
-
-        self.edges.add(Line_by2dots(G[0], G[3]))
-        self.edges.add(Line_by2dots(G[1], G[2]))
-
-        self.edges.add(Line_by2dots(R[0], R[1]))
-        self.edges.add(Line_by2dots(R[2], R[3]))
-
-        self.edges.add(Line_by2dots(R[0], O[4]))
-        self.edges.add(Line_by2dots(R[1], O[5]))
-        self.edges.add(Line_by2dots(R[2], O[6]))
-        self.edges.add(Line_by2dots(R[3], O[7]))
-
-        self.edges.add(Line_by2dots(G[3], O[4]))
-        self.edges.add(Line_by2dots(G[2], O[5]))
-        self.edges.add(Line_by2dots(G[2], O[6]))
-        self.edges.add(Line_by2dots(G[3], O[7]))
-
-        self.edges.add(Line_by2dots(O[4], B[1]))
-        self.edges.add(Line_by2dots(O[5], B[1]))
-        self.edges.add(Line_by2dots(O[6], B[2]))
-        self.edges.add(Line_by2dots(O[7], B[2]))
-
-        self.edges.add(Line_by2dots(B[2], B[1]))
-
-    # def vertex_direction_updater(self, vertices):
-    #     for group in vertices:
-    #         for vertex in group:
-    #             pos = vertex.get_center()
-    #             color = vertex.get_color()
-    #             size = vertex.get_height()
-    #             dot = Dot(pos, color=color).set_height(size)
-    #             vertex.become(dot)
+        for d1, d2 in edges_to_create:
+            self.edges.add(create_line(d1, d2))
 
     def create_faces(self):
 
