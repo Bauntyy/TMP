@@ -1,17 +1,52 @@
 import re
+from datetime import datetime
 import pandas as pd
 from typing import Dict, List, Pattern
 
-def is_invalid_data(pattern: Pattern, value: str) -> bool:
+def is_invalid_data(pattern: Pattern, value: str, col_name: str = None) -> bool:
     if pd.isna(value):
         return True
 
     value_str = str(value).strip()
 
-    # Пустые строки тоже невалидны
     if value_str == '' or value_str == 'nan':
         return True
-    return not bool(pattern.fullmatch(str(value)))
+
+    if not bool(pattern.fullmatch(value_str)):
+        return True
+
+    if col_name:
+        if col_name == 'height':
+            # Проверка, что рост в разумных пределах (0.5-2.5 метра)
+            try:
+                height = float(value_str)
+                if height < 0.5 or height > 2.5:
+                    return True
+            except ValueError:
+                pass
+
+        elif col_name == 'longitude':
+            # Долгота должна быть в пределах [-180, 180]
+            try:
+                lon = float(value_str)
+                if lon < -180 or lon > 180:
+                    return True
+            except ValueError:
+                pass
+
+        elif col_name == 'date':
+            # Проверка корректности даты
+            try:
+                datetime.strptime(value_str, '%Y-%m-%d')
+            except ValueError:
+                return True
+
+        elif col_name == 'blood_type':
+            # Проверка символов резус-фактора
+            # В таблице указано, что отрицательный резус обозначен символом \u2212
+            last_char = value_str[-1]
+            if last_char not in ['+', '-', '−']:
+                return True
 
 
 def find_invalid_rows(validation_patterns: Dict[str, str], data: pd.DataFrame) -> List[int]:
@@ -28,9 +63,8 @@ def find_invalid_rows(validation_patterns: Dict[str, str], data: pd.DataFrame) -
         if col_name not in data.columns:
             continue
 
-        # Проверяем каждое значение в колонке
         for index, value in data[col_name].items():
-            if is_invalid_data(pattern, value):
+            if is_invalid_data(pattern, value, col_name):
                 invalid_rows.add(index)
 
     return sorted(invalid_rows)
