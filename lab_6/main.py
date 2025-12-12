@@ -1,4 +1,4 @@
-from functions import read_json, read_sequence, run_tests, write_results
+from lab_6.functions import read_json, read_sequence, run_tests, write_results
 
 
 def main() -> None:
